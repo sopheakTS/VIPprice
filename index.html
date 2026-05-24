@@ -30,6 +30,7 @@
 
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/1iXLoDPlNtwBr-jfIR8Nd73dxarb9kfv5o3r3MCRCqIo/gviz/tq?tqx=out:csv';
+        
         let allData = [];
         let currentCategory = 'ទាំងអស់';
 
@@ -39,8 +40,8 @@
                 const data = await response.text();
                 const lines = data.split('\n');
                 
-                allData = lines.slice(1).map(line => {
-                    const row = line.split(',').map(cell => cell.replace(/"/g, '').trim());
+                allData = lines.slice(1).filter(line => line.trim() !== "").map(line => {
+                    const row = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim());
                     return { 
                         name: row[0] || '',
                         code: row[1] || '',
@@ -48,14 +49,15 @@
                         salePrice: row[3] || '0',
                         vipPrice: row[4] || '0',
                         category: row[5] || 'ផ្សេងៗ',
-                        inStock: row[6] !== '0'
+                        inStock: row[6] !== '0',
+                        updateStatus: row[7] ? row[7].trim() : '' 
                     };
-                }).filter(i => i.name !== '');
+                });
 
                 renderCategories();
                 renderProducts('ទាំងអស់');
             } catch (e) {
-                console.error(e);
+                console.error("កំហុសក្នុងការអានទិន្នន័យ:", e);
             }
         }
 
@@ -92,32 +94,41 @@
 
         function renderProductList(items) {
             const container = document.getElementById('app-container');
-            container.innerHTML = items.map(item => `
+            container.innerHTML = items.map(item => {
+                const isNew = item.updateStatus === '1';
+                
+                return `
                 <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 ${!item.inStock ? 'opacity-60 grayscale' : 'hover:border-orange-200'} transition-colors">
                     <div class="flex justify-between items-start mb-1">
-                        <span class="font-bold text-gray-900 text-sm leading-snug">${item.name}</span>
-                        <span class="text-[10px] text-gray-400 font-bold bg-gray-100 px-1.5 py-0.5 rounded">${item.code}</span>
+                        <div class="flex items-center flex-wrap gap-1">
+                            <span class="font-bold text-orange-700 text-[15px] leading-tight">${item.name}</span>
+                            ${isNew ? '<span class="text-[12px] font-extrabold text-red-600">(តម្លៃថ្មី)</span>' : ''}
+                        </div>
+                        <span class="text-[10px] text-gray-400 font-bold bg-gray-100 px-1.5 py-0.5 rounded ml-2 whitespace-nowrap">${item.code}</span>
                     </div>
                     
                     <div class="flex justify-between items-center mb-2">
-                        <div class="text-[10px] text-orange-600 font-medium bg-orange-50 px-1.5 py-0.5 rounded inline-block">
+                        <div class="text-[12px] text-black font-medium">
                             ${item.variant}
                         </div>
-                        ${!item.inStock ? '<span class="text-[9px] font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-full">អស់ស្តុក</span>' : ''}
+                        <div class="flex gap-1">
+                            ${!item.inStock ? '<span class="text-[9px] font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-full">អស់ស្តុក</span>' : ''}
+                        </div>
                     </div>
 
                     <div class="flex justify-between items-center border-t border-gray-100 pt-2">
                         <div class="flex items-center gap-1">
-                            <span class="text-gray-500 text-[10px] font-semibold">លក់រាយ:</span>
-                            <span class="text-orange-600 font-bold text-sm">${item.salePrice}</span>
+                            <span class="text-gray-500 text-[11px] font-semibold">លក់រាយ:</span>
+                            <span class="text-gray-900 font-bold text-[15px]">${item.salePrice}</span>
                         </div>
                         <div class="flex items-center gap-1">
-                            <span class="text-gray-400 text-[10px] font-bold">VIP:</span>
-                            <span class="text-blue-600 font-bold text-sm">${item.vipPrice}</span>
+                            <span class="text-gray-500 text-[11px] font-semibold">VIP:</span>
+                            <span class="text-gray-900 font-bold text-[15px]">${item.vipPrice}</span>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         window.onload = fetchSheetData;
