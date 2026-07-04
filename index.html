@@ -57,7 +57,7 @@
                         salePrice: row[3] || '0',
                         vipPrice: row[4] || '0',
                         category: row[5] || 'ផ្សេងៗ',
-                        inStock: row[6] !== '0',
+                        inStock: row[6] !== '0', // ត្រួតពិនិត្យក្នុងស្តុក
                         priceUpdate: row[7] || '', 
                         newStock: row[8] || '0'
                     };
@@ -106,13 +106,14 @@
                 const hasPriceUpdate = item.priceUpdate && item.priceUpdate.trim() !== '' && item.priceUpdate !== '0';
                 
                 return `
-                <div class="product-card bg-white p-4 rounded-2xl shadow-sm border border-gray-100 ${!item.inStock ? 'opacity-50 grayscale' : ''}">
+                <div class="product-card bg-white p-4 rounded-2xl shadow-sm border border-gray-100 ${!item.inStock ? 'opacity-60 grayscale' : ''}">
                     <div class="flex justify-between items-start mb-2">
                         <div class="flex flex-col gap-1">
                             <span class="font-bold text-gray-800 text-[16px]">${item.name}</span>
                             <div class="flex gap-1 flex-wrap">
-                                ${isNew ? '<span class="text-[16px] font-bold text-white bg-red-500 px-2 py-0.5 rounded-md shadow-sm">ទំនិញថ្មី</span>' : ''}
-                                ${hasPriceUpdate ? '<span class="text-[16px] font-bold text-white bg-blue-500 px-2 py-0.5 rounded-md shadow-sm">កែតម្លៃ</span>' : ''}
+                                ${isNew ? '<span class="text-[12px] font-bold text-white bg-red-500 px-2 py-0.5 rounded-md shadow-sm">ទំនិញថ្មី</span>' : ''}
+                                ${hasPriceUpdate ? '<span class="text-[12px] font-bold text-white bg-blue-500 px-2 py-0.5 rounded-md shadow-sm">កែតម្លៃ</span>' : ''}
+                                ${!item.inStock ? '<span class="text-[12px] font-bold text-white bg-gray-800 px-2 py-0.5 rounded-md shadow-sm">អស់ស្តុក</span>' : ''}
                             </div>
                         </div>
                         <span class="text-[11px] text-gray-500 font-bold bg-gray-100 px-2 py-1 rounded-lg">${item.code}</span>
