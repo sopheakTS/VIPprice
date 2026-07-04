@@ -40,7 +40,7 @@
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/1iXLoDPlNtwBr-jfIR8Nd73dxarb9kfv5o3r3MCRCqIo/gviz/tq?tqx=out:csv';
         
         let allData = [];
-        let currentCategory = 'ទាំងអស់';
+        let currentCategory = 'ទំនិញថ្មី'; // Default ទៅទំនិញថ្មី
 
         async function fetchSheetData() {
             try {
@@ -54,8 +54,12 @@
                 const data = await response.text();
                 const lines = data.split('\n');
                 
+                // ដំណើរការទិន្នន័យ
                 allData = lines.slice(1).filter(line => line.trim() !== "").map(line => {
                     const row = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim());
+                    // Debug: បើចង់ដឹងទិន្នន័យ row នីមួយៗ សូមដកសញ្ញា // ខាងក្រោមចេញ
+                    // console.log("Row data:", row);
+                    
                     return { 
                         name: row[0] || '',
                         code: row[1] || '',
@@ -64,12 +68,12 @@
                         vipPrice: row[4] || '0',
                         category: row[5] || 'ផ្សេងៗ',
                         inStock: row[6] !== '0',
-                        newStock: row[8] ? row[8].trim() : '' // យកទិន្នន័យពីជួរទី ៩ (Sheet I)
+                        newStock: row[8] ? row[8].toString().trim() : '0' // ធានាថាវាជា string
                     };
                 });
 
                 renderCategories();
-                renderProductList(allData);
+                filter(currentCategory, document.querySelector(`[onclick="filter('${currentCategory}', this)"]`));
             } catch (e) {
                 console.error("កំហុសក្នុងការអានទិន្នន័យ:", e);
             }
@@ -77,10 +81,11 @@
 
         function renderCategories() {
             const uniqueCats = [...new Set(allData.map(i => i.category))];
-            const categories = ['ទាំងអស់', 'ទំនិញថ្មី', ...uniqueCats];
+            // ដាក់ 'ទំនិញថ្មី' ឡើងមុនគេ
+            const categories = ['ទំនិញថ្មី', 'ទាំងអស់', ...uniqueCats];
             
             document.getElementById('category-list').innerHTML = categories.map(cat => `
-                <button onclick="filter('${cat}', this)" class="category-item w-full text-left px-3 py-2 text-xs rounded-lg font-medium text-gray-700 mb-1 transition-all ${cat === 'ទាំងអស់' ? 'active' : ''}">
+                <button onclick="filter('${cat}', this)" class="category-item w-full text-left px-3 py-2 text-xs rounded-lg font-medium text-gray-700 mb-1 transition-all ${cat === 'ទំនិញថ្មី' ? 'active' : ''}">
                     ${cat}
                 </button>
             `).join('');
@@ -88,8 +93,10 @@
 
         function filter(cat, btn) {
             currentCategory = cat;
-            document.querySelectorAll('.category-item').forEach(el => el.classList.remove('active'));
-            btn.classList.add('active');
+            if (btn) {
+                document.querySelectorAll('.category-item').forEach(el => el.classList.remove('active'));
+                btn.classList.add('active');
+            }
             handleSearch();
         }
 
@@ -100,7 +107,8 @@
                 if (currentCategory === 'ទាំងអស់') {
                     matchesCategory = true;
                 } else if (currentCategory === 'ទំនិញថ្មី') {
-                    matchesCategory = item.newStock === '1'; // ត្រងតាមជួរ I
+                    // ពិនិត្យមើលថាតើមានលេខ 1 មែនទេ
+                    matchesCategory = (item.newStock === '1');
                 } else {
                     matchesCategory = (item.category === currentCategory);
                 }
@@ -126,7 +134,6 @@
                     </div>
                     <div class="flex justify-between items-center mb-2">
                         <div class="text-[12px] text-black font-medium">${item.variant}</div>
-                        <div class="flex gap-1">${!item.inStock ? '<span class="text-[9px] font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-full">អស់ស្តុក</span>' : ''}</div>
                     </div>
                     <div class="flex justify-between items-center border-t border-gray-100 pt-2">
                         <div class="flex items-center gap-1">
