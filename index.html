@@ -113,14 +113,14 @@
                         <div class="flex items-center gap-1 mb-2">
                              <!-- ID Code color changed to blue-600 -->
                              <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">ID: ${item.code}</span>
-                             ${item.newStock === '1' ? '<span class="text-[10px] font-bold text-white bg-red-500 px-1.5 py-0.5 rounded">ទំនិញថ្មី 新货</span>' : ''}
+                                ${hasPriceUpdate ? '<span class="text-[12px] font-bold text-white bg-blue-500 px-2 py-0.5 rounded-md shadow-sm">តម្លៃថ្មី 新价</span>' : ''}
+                                ${!item.inStock ? '<span class="text-[12px] font-bold text-white bg-gray-800 px-2 py-0.5 rounded-md shadow-sm">អស់ស្តុក 没货</span>' : ''}
                         </div>
                     </div>
                     <div class="border-t border-gray-100 pt-2 mt-auto">
                         <div class="flex justify-between items-center text-[12px]">
                             <span class="text-gray-500 font-medium">លក់រាយ: <b class="text-orange-600">${item.salePrice}</b></span>
                             <span class="text-gray-500 font-medium">VIP: <b class="text-gray-900">${item.vipPrice}</b></span>
-                            <span class="text-[12px] font-bold text-white bg-gray-800 px-2 py-0.5 rounded-md shadow-sm">អស់ស្តុក 没货</span>' : ''}
                         </div>
                         ${item.qrLink ? `<div class="mt-2 flex justify-center" id="qrcode-${index}"></div>` : ''}
                     </div>
