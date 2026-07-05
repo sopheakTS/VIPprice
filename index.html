@@ -57,7 +57,7 @@
                         vipPrice: row[4] || '0',
                         category: row[5] || 'ផ្សេងៗ',
                         inStock: row[6] !== '0', 
-                        priceUpdate: row[7] || '', 
+                        priceUpdate: row[7] || '0', // 0 or 1
                         newStock: row[8] || '0',
                         image: row[10] || '',
                         qrLink: row[11] || ''
@@ -103,18 +103,23 @@
         function renderProductList(items) {
             const container = document.getElementById('app-container');
             container.innerHTML = items.map((item, index) => {
+                // កំណត់អថេរសម្រាប់ត្រួតពិនិត្យស្ថានភាពទំនិញ
+                const isNew = item.newStock === '1';
+                const isNewPrice = item.priceUpdate === '1';
+                const isOutOfStock = !item.inStock;
+
                 return `
-                <div class="product-card bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col ${!item.inStock ? 'opacity-60 grayscale' : ''}">
+                <div class="product-card bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col ${isOutOfStock ? 'opacity-60 grayscale' : ''}">
                     ${item.image ? `<div class="mb-2"><img src="${item.image}" alt="${item.name}" class="w-full aspect-square object-cover rounded-xl border border-gray-50 bg-gray-50" onerror="this.style.display='none'"></div>` : ''}
                     <div class="flex-1">
                         <div class="font-bold text-gray-900 text-sm mb-0.5">${item.name}</div>
-                        <!-- Variant color changed to gray-500 -->
                         <div class="text-[11px] text-gray-500 font-medium mb-1 truncate">${item.variant || '-'}</div>
-                        <div class="flex items-center gap-1 mb-2">
-                             <!-- ID Code color changed to blue-600 -->
-                             <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">ID: ${item.code}</span>
-                                ${hasPriceUpdate ? '<span class="text-[12px] font-bold text-white bg-blue-500 px-2 py-0.5 rounded-md shadow-sm">តម្លៃថ្មី 新价</span>' : ''}
-                                ${!item.inStock ? '<span class="text-[12px] font-bold text-white bg-gray-800 px-2 py-0.5 rounded-md shadow-sm">អស់ស្តុក 没货</span>' : ''}
+                        <div class="flex items-center gap-1 mb-2 flex-wrap">
+                             <!-- ID, New, Price Tag colors updated -->
+                             <span class="text-[10px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded border border-orange-100">ID: ${item.code}</span>
+                             ${isNew ? '<span class="text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">ទំនិញថ្មី 新货</span>' : ''}
+                             ${isNewPrice ? '<span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">តម្លៃថ្មី 新价</span>' : ''}
+                             ${isOutOfStock ? '<span class="text-[10px] font-bold text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">អស់ស្តុក 没货</span>' : ''}
                         </div>
                     </div>
                     <div class="border-t border-gray-100 pt-2 mt-auto">
